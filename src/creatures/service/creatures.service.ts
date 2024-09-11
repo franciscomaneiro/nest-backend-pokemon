@@ -66,9 +66,27 @@ export class CreaturesService {
       }
       return damage;
     };
+
+    const finishBattle = async (winner: Creature, turns: number) => {
+      const result = {
+        winner,
+        turns,
+      };
+      try {
+        await this.BattleService.create({
+          id: `${new Date().getTime()}`,
+          winner: result.winner.name,
+          turns: result.turns,
+          date: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error("Error", error);
+      }
+      return result;
+    };
+
     let attacker: Creature;
     let defender: Creature;
-    let result: { winner: Creature; turns: number };
     while (creature1.hp > 0 && creature2.hp > 0) {
       if (creature1.speed === creature2.speed) {
         if (creature1.attack > creature2.attack) {
@@ -90,32 +108,14 @@ export class CreaturesService {
       }
       defender.hp -= calculateDamage(attacker, defender);
       if (defender.hp <= 0) {
-        result = {
-          winner: attacker,
-          turns,
-        };
+        return finishBattle(attacker, turns);
       }
       attacker.hp -= calculateDamage(defender, attacker);
       if (attacker.hp <= 0) {
-        result = {
-          winner: defender,
-          turns,
-        };
+        return finishBattle(defender, turns);
       }
       console.log("Combat turns:", turns);
       endTurn();
     }
-
-    try {
-      await this.BattleService.create({
-        id: `${new Date().getTime()}`,
-        winner: result.winner.name,
-        turns: result.turns,
-        date: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("Error", error);
-    }
-    return result;
   }
 }
