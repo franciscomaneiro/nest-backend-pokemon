@@ -106,6 +106,10 @@ export class CreaturesService {
         attacker = creature2;
         defender = creature1;
       }
+      if (id1 === id2) {
+        attacker = creature1;
+        defender = creature2;
+      }
       defender.hp -= calculateDamage(attacker, defender);
       if (defender.hp <= 0) {
         return finishBattle(attacker, turns);
